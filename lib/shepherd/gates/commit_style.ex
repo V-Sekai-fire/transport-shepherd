@@ -18,7 +18,7 @@ defmodule Shepherd.Gates.CommitStyle do
   @conventional_rx ~r/^[a-z][a-z0-9-]*(\([^)]+\))?!?:/
   @sentence_start_rx ~r/^([A-Z]|\d|\[|`)/
   @trailing_period_rx ~r/\.$/
-  @weftspun_rx ~r|github\.com[/:]weftspun/|
+  @own_rx ~r"github\.com[/:](V-Sekai-fire|chibifire-stages)/"i
 
   def run(["--self-test"]), do: self_test()
 
@@ -29,7 +29,7 @@ defmodule Shepherd.Gates.CommitStyle do
         i -> Enum.at(argv, i + 1)
       end
     if not own_repo?(File.cwd!()) do
-      IO.puts("skipped: origin not weftspun (fork convention applies, RFD 2026)")
+      IO.puts("skipped: origin not ours (fork convention applies, RFD 2026)")
       0
     else
       gate(base)
@@ -57,7 +57,7 @@ defmodule Shepherd.Gates.CommitStyle do
         |> String.split("\n", trim: true)
         |> Enum.any?(fn line ->
           case String.split(line, ~r/\s+/, parts: 2) do
-            [_, url] -> Regex.match?(@weftspun_rx, url)
+            [_, url] -> Regex.match?(@own_rx, url)
             _ -> false
           end
         end)
@@ -113,10 +113,14 @@ defmodule Shepherd.Gates.CommitStyle do
     ]
 
     url_cases = [
-      {"https://github.com/weftspun/request-for-discussion", true},
-      {"git@github.com:weftspun/request-for-discussion.git", true},
+      {"https://github.com/V-Sekai-fire/manuals-weftspun", true},
+      {"git@github.com:V-Sekai-fire/interactor-dress-on.git", true},
+      {"https://github.com/v-sekai-fire/interactor-dress-on", true},
+      {"https://github.com/chibifire-stages/character-marocchino", true},
       {"https://github.com/godotengine/godot", false},
-      {"git@github.com:huggingface/transformers.git", false}
+      {"git@github.com:huggingface/transformers.git", false},
+      {"https://github.com/weftspun/request-for-discussion", false},
+      {"https://github.com/V-Sekai-fire-mirror/manuals-weftspun", false}
     ]
 
     all_ok? =
@@ -132,7 +136,7 @@ defmodule Shepherd.Gates.CommitStyle do
 
     all_ok? =
       Enum.reduce(url_cases, all_ok?, fn {url, expect_own}, acc ->
-        got_own = Regex.match?(@weftspun_rx, url)
+        got_own = Regex.match?(@own_rx, url)
         ok = got_own == expect_own
         IO.puts("  #{if ok, do: "ok  ", else: "FAIL"} url-classify #{inspect(url)} → own=#{got_own} (expected #{expect_own})")
         acc and ok
