@@ -13,7 +13,7 @@ defmodule Shepherd.Gates.NoOrphanedBranches do
   """
 
   @excluded MapSet.new(~w(main gh-pages))
-  @default_repo "weftspun/request-for-discussion"
+  @default_repo "V-Sekai-fire/manuals-weftspun"
 
   def run(["--self-test"]), do: self_test()
 

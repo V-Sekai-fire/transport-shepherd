@@ -3,7 +3,7 @@ defmodule Shepherd.Gates.GoalManifests do
   Elixir port of `2-contract/manuals-weftspun/scripts/check_goal_manifests.py`.
   Same rules, same 2 self-test controls.
 
-  Every `weftspun/<name>` the Sides rule names as live must not be archived
+  Every `V-Sekai-fire/<name>` the Sides rule names as live must not be archived
   on the org. The gate reads CLAUDE.md's Sides paragraph (only the sentence
   naming the live manifest, not the retraction paragraphs) and compares
   against the org's archived-repo set from `gh repo list`.
@@ -12,7 +12,7 @@ defmodule Shepherd.Gates.GoalManifests do
   3; a silent-skip on network failure reads exactly like a pass.
   """
 
-  @org "weftspun"
+  @org "V-Sekai-fire"
 
   def run(argv) do
     self_test? = "--self-test" in argv
@@ -48,7 +48,7 @@ defmodule Shepherd.Gates.GoalManifests do
 
   def named_live(text) do
     para = sides_rule(text) |> String.split("\n\n") |> List.first() || ""
-    Regex.scan(~r/`#{@org}\/([a-z0-9._\-]+)`/, para)
+    Regex.scan(~r/`#{Regex.escape(@org)}\/([A-Za-z0-9._\-]+)`/, para)
     |> Enum.map(fn [_, n] -> n end)
     |> Enum.uniq()
     |> Enum.sort()
@@ -104,7 +104,7 @@ defmodule Shepherd.Gates.GoalManifests do
           [victim | _] ->
             controls = [
               {"an archived manifest is named as live",
-                String.replace(real_text, "`weftspun/weftspun-keypoint`",
+                String.replace(real_text, "`V-Sekai-fire/contract-manifest-taskweft`",
                                "`#{@org}/#{victim}`", global: false)},
               {"the rule names no manifest",
                 mutate_sides_to_prose(real_text)}
