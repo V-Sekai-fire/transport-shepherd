@@ -1,24 +1,21 @@
-Elixir Burrito TUI for the weftspun agent fleet: `status` and workspace `gates`.
-
 # transport-shepherd
 
-    shepherd status                # any side: show fleet + own state
-    shepherd gates <name> [args]   # run a workspace gate (see `shepherd gates`)
+A command-line tool for the workspace's agent fleet that runs the workspace gates, shipped as a self-contained binary.
 
-The enrol / rotate / migrate / revoke ceremony was trimmed after per-agent `BAO_TOKEN` + `bao login -no-store` closed the stale-token failure mode RFD 2195 was written against. If those commands are needed again, retrofit from RFD 2195 DETAILS §"stale token file".
+## What it is for
 
-## Side
+`gates` runs the workspace's checks, ported to Elixir, by name, and `status`, meant to show the fleet's and the local agent's state from the coordination store, prints a placeholder. The release wraps the Erlang runtime into one binary per platform, so a desk needs nothing else installed to run it.
 
-This project sits on the **1-transport** side of the hexagon. `status` moves fleet + own state between the peer's box, the coordinator's box, and the Bao coordination store; `gates` runs the workspace gates ported from `weftspun/request-for-discussion`'s `scripts/`. No compute, no data-model, no rendering.
+## Building and running
 
-## Runtime
+```sh
+mix deps.get
+mix gates
+mix release shepherd
+```
 
-Elixir 1.18 or later, compiled to a self-contained binary via [Burrito](https://github.com/burrito-elixir/burrito). Ships as one file per target platform (macOS ARM64, Windows x86_64), no Erlang runtime dependency on the host. Bao HTTP client via `Req`.
-
-## Status
-
-**Skeleton.** `gates` is real and lands the 17 bucket-A gate ports task #83 shipped; `status` is scaffolded. `docs/design.md` retains the RFD 2195 DETAILS gotcha internalisation for the ceremony that used to sit here.
+`mix gates` lists the gates and runs one by name without building the binary; `mix release shepherd` builds the binaries.
 
 ## Licence
 
-Dual-licensed under Apache-2.0 or MIT at your option; `SPDX-License-Identifier: Apache-2.0 OR MIT`.
+Apache-2.0 OR MIT, at your option. See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT).
